@@ -15,11 +15,13 @@ function App() {
 
   // Load images from config.json
   useEffect(() => {
-    fetch('/images/config.json')
+    const baseUrl = import.meta.env.BASE_URL;
+    fetch(`${baseUrl}images/config.json`)
       .then((res) => res.json())
       .then((data) => {
         const loadedImages: GalleryImage[] = data.images.map((img: any) => ({
           ...img,
+          src: `${baseUrl}${img.src.replace(/^\//, '')}`,
           createdAt: img.createdAt ? new Date(img.createdAt) : new Date(),
         }));
         setImages(loadedImages);
