@@ -142,25 +142,6 @@ body {
   color: white;
 }
 
-.upload-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--accent-color);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.upload-btn:hover {
-  background: var(--accent-hover);
-}
-
 /* Main Layout */
 .main {
   display: flex;
@@ -266,10 +247,6 @@ body {
   padding: 24px;
   overflow-y: auto;
   position: relative;
-}
-
-.gallery.dragging {
-  background: var(--bg-secondary);
 }
 
 .gallery-grid {
@@ -378,50 +355,6 @@ body {
   flex: 1;
 }
 
-.gallery-item-delete {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--danger-color);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.gallery-item:hover .gallery-item-delete {
-  opacity: 1;
-}
-
-.gallery-item-delete:hover {
-  transform: scale(1.1);
-}
-
-/* Drop Overlay */
-.drop-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(139, 92, 246, 0.2);
-  border: 3px dashed var(--accent-color);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  color: var(--accent-color);
-  font-size: 18px;
-  font-weight: 500;
-  pointer-events: none;
-}
-
 /* Lightbox */
 .lightbox {
   position: fixed;
@@ -514,4 +447,17 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--bg-hover);
+}
+
+/* Loading */
+.app.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-spinner {
+  color: var(--text-muted);
+  font-size: 16px;
 }

@@ -1,0 +1,10 @@
+{
+  "images": [
+    {
+      "id": "sample-1",
+      "name": "Sample Image 1",
+      "src": "/images/sample-1.jpg",
+      "folder": "Samples"
+    }
+  ]
+}

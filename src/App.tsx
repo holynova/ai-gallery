@@ -1,44 +1,76 @@
-import { useState, useCallback, useRef } from 'react';
-import { useGalleryStore } from './store/galleryStore';
-import { Upload, Search, Grid, List, Trash2, FolderOpen, X, Image as ImageIcon } from 'lucide-react';
-import type { GalleryImage } from './types/gallery';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Grid, List, FolderOpen, Image as ImageIcon } from 'lucide-react';
+import type { GalleryImage, Folder, SortOption } from './types/gallery';
 import './App.css';
 
 function App() {
-  const {
-    images,
-    folders,
-    selectedFolder,
-    sortBy,
-    searchQuery,
-    viewMode,
-    addImages,
-    removeImage,
-    selectFolder,
-    setSortBy,
-    setSearchQuery,
-    setViewMode,
-  } = useGalleryStore();
-
-  const [isDragging, setIsDragging] = useState(false);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('date-desc');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load images from config.json
+  useEffect(() => {
+    fetch('/images/config.json')
+      .then((res) => res.json())
+      .then((data) => {
+        const loadedImages: GalleryImage[] = data.images.map((img: any) => ({
+          ...img,
+          createdAt: img.createdAt ? new Date(img.createdAt) : new Date(),
+        }));
+        setImages(loadedImages);
+        setFolders(calculateFolders(loadedImages));
+        setLoading(false);
+      })
+      .catch(() => {
+        setImages([]);
+        setFolders([]);
+        setLoading(false);
+      });
+  }, []);
+
+  // Calculate folders from images
+  function calculateFolders(imgs: GalleryImage[]): Folder[] {
+    const folderMap = new Map<string, Folder>();
+    imgs.forEach((img) => {
+      const folderId = img.folder || 'uncategorized';
+      const existing = folderMap.get(folderId);
+      if (existing) {
+        existing.count = (existing.count || 0) + 1;
+      } else {
+        folderMap.set(folderId, {
+          id: folderId,
+          name: folderId === 'uncategorized' ? 'Uncategorized' : folderId,
+          count: 1,
+        });
+      }
+    });
+    return Array.from(folderMap.values());
+  }
 
   // Filter and sort images
-  const filteredImages = images
-    .filter((img) => {
-      if (selectedFolder && img.folder !== selectedFolder) return false;
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
+  const filteredImages = useMemo(() => {
+    let result = images;
+
+    if (selectedFolder) {
+      result = result.filter((img) => img.folder === selectedFolder);
+    }
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (img) =>
           img.name?.toLowerCase().includes(query) ||
           img.alt?.toLowerCase().includes(query) ||
           img.tags?.some((tag) => tag.toLowerCase().includes(query))
-        );
-      }
-      return true;
-    })
-    .sort((a, b) => {
+      );
+    }
+
+    return [...result].sort((a, b) => {
       switch (sortBy) {
         case 'name-asc':
           return (a.name || a.alt || '').localeCompare(b.name || b.alt || '');
@@ -52,64 +84,15 @@ function App() {
           return 0;
       }
     });
+  }, [images, selectedFolder, sortBy, searchQuery]);
 
-  // Handle file upload
-  const handleFileUpload = useCallback(
-    (files: FileList | null) => {
-      if (!files) return;
-
-      const newImages: GalleryImage[] = [];
-
-      Array.from(files).forEach((file) => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              const galleryImage: GalleryImage = {
-                id: crypto.randomUUID(),
-                src: e.target?.result as string,
-                thumbnail: e.target?.result as string,
-                name: file.name,
-                alt: file.name,
-                width: img.width,
-                height: img.height,
-                folder: selectedFolder || 'uncategorized',
-                createdAt: new Date(),
-              };
-              newImages.push(galleryImage);
-              if (newImages.length === Array.from(files).filter((f) => f.type.startsWith('image/')).length) {
-                addImages(newImages);
-              }
-            };
-            img.src = e.target?.result as string;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    },
-    [addImages, selectedFolder]
-  );
-
-  // Drag and drop handlers
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-      handleFileUpload(e.dataTransfer.files);
-    },
-    [handleFileUpload]
-  );
+  if (loading) {
+    return (
+      <div className="app loading">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -133,7 +116,7 @@ function App() {
             />
             {searchQuery && (
               <button className="search-clear" onClick={() => setSearchQuery('')}>
-                <X size={16} />
+                ×
               </button>
             )}
           </div>
@@ -151,18 +134,6 @@ function App() {
           >
             <List size={20} />
           </button>
-          <button className="upload-btn" onClick={() => fileInputRef.current?.click()}>
-            <Upload size={20} />
-            Upload
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => handleFileUpload(e.target.files)}
-            style={{ display: 'none' }}
-          />
         </div>
       </header>
 
@@ -177,7 +148,7 @@ function App() {
           <nav className="folder-list">
             <button
               className={`folder-item ${selectedFolder === null ? 'active' : ''}`}
-              onClick={() => selectFolder(null)}
+              onClick={() => setSelectedFolder(null)}
             >
               <span>All Images</span>
               <span className="folder-count">{images.length}</span>
@@ -186,7 +157,7 @@ function App() {
               <button
                 key={folder.id}
                 className={`folder-item ${selectedFolder === folder.id ? 'active' : ''}`}
-                onClick={() => selectFolder(folder.id)}
+                onClick={() => setSelectedFolder(folder.id)}
               >
                 <span>{folder.name}</span>
                 <span className="folder-count">{folder.count}</span>
@@ -199,7 +170,7 @@ function App() {
             <h3>Sort by</h3>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="sort-select"
             >
               <option value="date-desc">Newest First</option>
@@ -211,17 +182,12 @@ function App() {
         </aside>
 
         {/* Gallery */}
-        <main
-          className={`gallery ${isDragging ? 'dragging' : ''}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
+        <main className="gallery">
           {filteredImages.length === 0 ? (
             <div className="empty-state">
               <ImageIcon size={64} />
-              <h2>No images yet</h2>
-              <p>Drag and drop images here or click Upload to get started</p>
+              <h2>No images</h2>
+              <p>Add images to public/images/ and update config.json</p>
             </div>
           ) : (
             <div className={`gallery-grid ${viewMode}`}>
@@ -232,33 +198,13 @@ function App() {
                   onClick={() => setLightboxImage(image)}
                 >
                   <div className="gallery-item-image">
-                    <img
-                      src={image.thumbnail || image.src}
-                      alt={image.alt || image.name}
-                      loading="lazy"
-                    />
+                    <img src={image.src} alt={image.alt || image.name} loading="lazy" />
                   </div>
                   <div className="gallery-item-overlay">
                     <span className="gallery-item-name">{image.name || image.alt}</span>
-                    <button
-                      className="gallery-item-delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeImage(image.id);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {isDragging && (
-            <div className="drop-overlay">
-              <Upload size={64} />
-              <span>Drop images here</span>
             </div>
           )}
         </main>
@@ -268,7 +214,7 @@ function App() {
       {lightboxImage && (
         <div className="lightbox" onClick={() => setLightboxImage(null)}>
           <button className="lightbox-close" onClick={() => setLightboxImage(null)}>
-            <X size={24} />
+            ×
           </button>
           <img
             src={lightboxImage.src}
@@ -278,11 +224,6 @@ function App() {
           />
           <div className="lightbox-info">
             <h3>{lightboxImage.name || lightboxImage.alt}</h3>
-            {lightboxImage.width && lightboxImage.height && (
-              <p>
-                {lightboxImage.width} x {lightboxImage.height}
-              </p>
-            )}
           </div>
         </div>
       )}
