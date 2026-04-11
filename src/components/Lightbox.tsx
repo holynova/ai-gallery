@@ -1,5 +1,6 @@
-import { X, ChevronLeft, ChevronRight, Download, ExternalLink } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import type { GalleryImage } from '../types/gallery';
+import type { RatingType } from '../hooks/useImageRatings';
 
 interface LightboxProps {
   isOpen: boolean;
@@ -11,6 +12,9 @@ interface LightboxProps {
   onNext: () => void;
   hasPrevious: boolean;
   hasNext: boolean;
+  rating?: RatingType;
+  onLike?: () => void;
+  onDislike?: () => void;
 }
 
 export function Lightbox({
@@ -23,6 +27,9 @@ export function Lightbox({
   onNext,
   hasPrevious,
   hasNext,
+  rating,
+  onLike,
+  onDislike,
 }: LightboxProps) {
   if (!isOpen || !image) return null;
 
@@ -86,6 +93,28 @@ export function Lightbox({
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              className={`lightbox-nav ${rating === 'like' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onLike?.();
+              }}
+              title="Like"
+              style={rating === 'like' ? { color: '#22c55e' } : {}}
+            >
+              <ThumbsUp size={20} />
+            </button>
+            <button
+              className={`lightbox-nav ${rating === 'dislike' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDislike?.();
+              }}
+              title="Dislike"
+              style={rating === 'dislike' ? { color: '#ef4444' } : {}}
+            >
+              <ThumbsDown size={20} />
+            </button>
             <button
               className="lightbox-nav"
               onClick={(e) => {

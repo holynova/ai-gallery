@@ -229,6 +229,10 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.lightbox-nav.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .lightbox-nav.prev { left: 1rem; }
 .lightbox-nav.next { right: 1rem; }
 .lightbox-close {

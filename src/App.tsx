@@ -1,9 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Grid, List, FolderOpen, Image as ImageIcon, Menu } from 'lucide-react';
+import { Search, Grid, List, FolderOpen, Image as ImageIcon, Menu, ThumbsUp, ThumbsDown } from 'lucide-react';
 import type { GalleryImage, Folder, SortOption } from './types/gallery';
 import { useLightbox } from './hooks/useLightbox';
+import { useImageRatings } from './hooks/useImageRatings';
 import { Lightbox } from './components/Lightbox';
 import './App.css';
+
+export type RatingFilter = 'all' | 'liked' | 'disliked' | 'neutral';
 
 function App() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -14,6 +17,16 @@ function App() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
+
+  // Image ratings state and controls
+  const {
+    getRating,
+    toggleLike,
+    toggleDislike,
+    getLikeCount,
+    getDislikeCount,
+  } = useImageRatings();
 
   // Lightbox state and controls
   const {
@@ -70,7 +83,7 @@ function App() {
     return Array.from(folderMap.values());
   }
 
-  // Filter and sort images
+// Filter and sort images
   const filteredImages = useMemo(() => {
     let result = images;
 
@@ -88,12 +101,21 @@ function App() {
       );
     }
 
+    // Rating filter
+    if (ratingFilter === 'liked') {
+      result = result.filter((img) => getRating(img.id) === 'like');
+    } else if (ratingFilter === 'disliked') {
+      result = result.filter((img) => getRating(img.id) === 'dislike');
+    } else if (ratingFilter === 'neutral') {
+      result = result.filter((img) => getRating(img.id) === null);
+    }
+
     return [...result].sort((a, b) => {
       switch (sortBy) {
         case 'name-asc':
           return (a.name || a.alt || '').localeCompare(b.name || b.alt || '');
         case 'name-desc':
-          return (b.name || a.alt || '').localeCompare(a.name || a.alt || '');
+          return (b.name || a.alt || '').localeCompare(a.name || b.alt || '');
         case 'date-asc':
           return (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0);
         case 'date-desc':
@@ -102,7 +124,7 @@ function App() {
           return 0;
       }
     });
-  }, [images, selectedFolder, sortBy, searchQuery]);
+  }, [images, selectedFolder, sortBy, searchQuery, ratingFilter, getRating]);
 
   if (loading) {
     return (
@@ -204,6 +226,37 @@ function App() {
               <option value="name-desc">Name (Z-A)</option>
             </select>
           </div>
+
+          {/* Rating filter */}
+          <div className="sidebar-section">
+            <h3>Filter by rating</h3>
+            <div className="rating-filter">
+              <button
+                className={`rating-btn ${ratingFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setRatingFilter('all')}
+              >
+                All
+              </button>
+              <button
+                className={`rating-btn ${ratingFilter === 'liked' ? 'active' : ''}`}
+                onClick={() => setRatingFilter('liked')}
+              >
+                <ThumbsUp size={14} /> {getLikeCount()}
+              </button>
+              <button
+                className={`rating-btn ${ratingFilter === 'disliked' ? 'active' : ''}`}
+                onClick={() => setRatingFilter('disliked')}
+              >
+                <ThumbsDown size={14} /> {getDislikeCount()}
+              </button>
+              <button
+                className={`rating-btn ${ratingFilter === 'neutral' ? 'active' : ''}`}
+                onClick={() => setRatingFilter('neutral')}
+              >
+                Neutral
+              </button>
+            </div>
+          </div>
         </aside>
 
         {/* Gallery */}
@@ -246,6 +299,9 @@ function App() {
         onNext={goToNext}
         hasPrevious={hasPrevious}
         hasNext={hasNext}
+        rating={currentImage ? getRating(currentImage.id) : null}
+        onLike={() => currentImage && toggleLike(currentImage.id)}
+        onDislike={() => currentImage && toggleDislike(currentImage.id)}
       />
     </div>
   );
