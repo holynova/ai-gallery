@@ -9,8 +9,8 @@
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   --border-color: #27272a;
-  --accent-color: #8b5cf6;
-  --accent-hover: #a78bfa;
+  --accent-color: #06b6d4;
+  --accent-hover: #22d3ee;
   --danger-color: #ef4444;
   --success-color: #22c55e;
 }
@@ -60,7 +60,7 @@ body {
 }
 
 .logo-icon {
-  color: var(--accent-color);
+  color: #06b6d4;
 }
 
 .header-center {
