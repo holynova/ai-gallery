@@ -81,7 +81,7 @@ export function useLightbox(): UseLightboxReturn {
     }
   }, [images.length]);
 
-  // Keyboard navigation
+  // Keyboard navigation (ArrowUp/ArrowDown/ArrowLeft/ArrowRight)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -91,9 +91,11 @@ export function useLightbox(): UseLightboxReturn {
           close();
           break;
         case 'ArrowRight':
+        case 'ArrowDown':
           goToNext();
           break;
         case 'ArrowLeft':
+        case 'ArrowUp':
           goToPrevious();
           break;
       }
@@ -102,6 +104,61 @@ export function useLightbox(): UseLightboxReturn {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, close, goToNext, goToPrevious]);
+
+  // Touch/swipe navigation for mobile
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchEndY = 0;
+    let touchEndX = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      touchEndY = e.touches[0].clientY;
+      touchEndX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+      const deltaY = touchStartY - touchEndY;
+      const deltaX = touchStartX - touchEndX;
+      const minSwipeDistance = 50;
+
+      // Determine swipe direction based on dominant axis
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        // Vertical swipe
+        if (Math.abs(deltaY) > minSwipeDistance) {
+          if (deltaY > 0) {
+            // Swipe up -> next image
+            goToNext();
+          } else {
+            // Swipe down -> previous image
+            goToPrevious();
+          }
+        }
+      }
+      // Reset touch values
+      touchStartY = 0;
+      touchStartX = 0;
+      touchEndY = 0;
+      touchEndX = 0;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isOpen, goToNext, goToPrevious]);
 
   // Prevent body scroll when lightbox is open
   useEffect(() => {
