@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Grid, List, FolderOpen, Image as ImageIcon } from 'lucide-react';
+import { Search, Grid, List, FolderOpen, Image as ImageIcon, Menu } from 'lucide-react';
 import type { GalleryImage, Folder, SortOption } from './types/gallery';
 import './App.css';
 
@@ -12,6 +12,7 @@ function App() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Load images from config.json
   useEffect(() => {
@@ -125,6 +126,13 @@ function App() {
         </div>
         <div className="header-right">
           <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle sidebar"
+          >
+            <Menu size={20} />
+          </button>
+          <button
             className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
             onClick={() => setViewMode('grid')}
           >
@@ -142,15 +150,15 @@ function App() {
       {/* Main content */}
       <div className="main">
         {/* Sidebar */}
-        <aside className="sidebar">
-          <div className="sidebar-header">
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-header" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <FolderOpen size={20} />
             <span>Folders</span>
           </div>
           <nav className="folder-list">
             <button
               className={`folder-item ${selectedFolder === null ? 'active' : ''}`}
-              onClick={() => setSelectedFolder(null)}
+              onClick={() => { setSelectedFolder(null); setSidebarOpen(false); }}
             >
               <span>All Images</span>
               <span className="folder-count">{images.length}</span>
@@ -159,7 +167,7 @@ function App() {
               <button
                 key={folder.id}
                 className={`folder-item ${selectedFolder === folder.id ? 'active' : ''}`}
-                onClick={() => setSelectedFolder(folder.id)}
+                onClick={() => { setSelectedFolder(folder.id); setSidebarOpen(false); }}
               >
                 <span>{folder.name}</span>
                 <span className="folder-count">{folder.count}</span>
