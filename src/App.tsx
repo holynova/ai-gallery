@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Grid, List, FolderOpen, Image as ImageIcon, Menu } from 'lucide-react';
 import type { GalleryImage, Folder, SortOption } from './types/gallery';
+import { useLightbox } from './hooks/useLightbox';
+import { Lightbox } from './components/Lightbox';
 import './App.css';
 
 function App() {
@@ -10,9 +12,22 @@ function App() {
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Lightbox state and controls
+  const {
+    isOpen,
+    currentImage,
+    currentIndex,
+    images: lightboxImages,
+    open: openLightbox,
+    close: closeLightbox,
+    goToNext,
+    goToPrevious,
+    hasNext,
+    hasPrevious,
+  } = useLightbox();
 
   // Load images from config.json
   useEffect(() => {
@@ -205,7 +220,7 @@ function App() {
                 <div
                   key={image.id}
                   className="gallery-item"
-                  onClick={() => setLightboxImage(image)}
+                  onClick={() => openLightbox(image, filteredImages)}
                 >
                   <div className="gallery-item-image">
                     <img src={image.src} alt={image.alt || image.name} loading="lazy" />
@@ -221,22 +236,17 @@ function App() {
       </div>
 
       {/* Lightbox */}
-      {lightboxImage && (
-        <div className="lightbox" onClick={() => setLightboxImage(null)}>
-          <button className="lightbox-close" onClick={() => setLightboxImage(null)}>
-            ×
-          </button>
-          <img
-            src={lightboxImage.src}
-            alt={lightboxImage.alt || lightboxImage.name}
-            className="lightbox-image"
-            onClick={(e) => e.stopPropagation()}
-          />
-          <div className="lightbox-info">
-            <h3>{lightboxImage.name || lightboxImage.alt}</h3>
-          </div>
-        </div>
-      )}
+      <Lightbox
+        isOpen={isOpen}
+        image={currentImage}
+        images={lightboxImages}
+        currentIndex={currentIndex}
+        onClose={closeLightbox}
+        onPrevious={goToPrevious}
+        onNext={goToNext}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+      />
     </div>
   );
 }
