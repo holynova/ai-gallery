@@ -1,73 +1,95 @@
-# React + TypeScript + Vite
+# AI Gallery
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, beautiful image gallery built with React, TypeScript, and Zustand.
 
-Currently, two official plugins are available:
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![React](https://img.shields.io/badge/React-19.2.4-61dafb.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0.2-3178c6.svg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Image Upload** - Drag & drop or click to upload images
+- **Grid/List View** - Toggle between grid and list layouts
+- **Search** - Search images by name, alt text, or tags
+- **Folder Organization** - Organize images into folders
+- **Sorting** - Sort by name or date
+- **Lightbox Preview** - Full-screen image preview with details
+- **Dark Mode** - Beautiful dark theme UI
+- **Persistent Storage** - Images stored in localStorage
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Zustand** - State management with persistence
+- **Tailwind CSS 4** - Styling
+- **Lucide React** - Icons
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 18+
+- npm or pnpm
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/holynova/ai-gallery.git
+cd ai-gallery
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
 ```
+
+## Project Structure
+
+```
+src/
+├── components/       # React components
+│   ├── FolderTabs.tsx
+│   ├── GalleryGrid.tsx
+│   ├── ImageCard.tsx
+│   ├── Lightbox.tsx
+│   ├── Toolbar.tsx
+│   └── UploadZone.tsx
+├── hooks/           # Custom React hooks
+│   ├── useGallery.ts
+│   ├── useLazyLoad.ts
+│   ├── useLightbox.ts
+│   └── useDarkMode.ts
+├── store/           # Zustand store
+│   └── galleryStore.ts
+├── types/           # TypeScript types
+│   └── gallery.ts
+├── App.tsx          # Main app component
+├── App.css          # App styles
+└── main.tsx         # Entry point
+```
+
+## Usage
+
+1. **Upload Images** - Click the Upload button or drag & drop images onto the gallery
+2. **Organize** - Images are automatically sorted by date (newest first)
+3. **Search** - Use the search bar to find images by name
+4. **Folders** - Click a folder in the sidebar to filter images
+5. **Preview** - Click any image to view it in lightbox mode
+6. **Delete** - Hover over an image and click the trash icon to remove it
+
+## License
+
+MIT License - see LICENSE file for details.
