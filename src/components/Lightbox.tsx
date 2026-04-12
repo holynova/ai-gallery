@@ -114,22 +114,22 @@ export function Lightbox({
               <span>Loading high resolution...</span>
             </div>
           )}
-          {/* Thumbnail (quick load) */}
-          <img
-            src={image.thumbnail || image.src}
-            alt=""
-            className="lightbox-thumb"
-            style={{ opacity: highResLoaded ? 0 : 1 }}
-          />
-          {/* High-res image (lazy load) */}
-          <img
-            ref={imgRef}
-            src={image.src}
-            alt={image.alt || image.name || 'Gallery image'}
-            className="lightbox-highres"
-            style={{ opacity: highResLoaded ? 1 : 0 }}
-            onLoad={handleImageLoad}
-          />
+          <div className="lightbox-images-wrapper">
+            {/* Thumbnail (quick load) */}
+            <img
+              src={image.thumbnail || image.src}
+              alt=""
+              className={`lightbox-thumb ${highResLoaded ? 'hidden' : ''}`}
+            />
+            {/* High-res image (lazy load) */}
+            <img
+              ref={imgRef}
+              src={image.src}
+              alt={image.alt || image.name || 'Gallery image'}
+              className={`lightbox-highres ${highResLoaded ? 'visible' : ''}`}
+              onLoad={handleImageLoad}
+            />
+          </div>
         </div>
         <div className="lightbox-bottom-bar">
           <div className="lightbox-info">

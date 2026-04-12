@@ -276,7 +276,7 @@ function App() {
                   onClick={() => openLightbox(image, filteredImages)}
                 >
                   <div className="gallery-item-image">
-                    <img src={image.src} alt={image.alt || image.name} loading="lazy" />
+                    <img src={image.thumbnail || image.src} alt={image.alt || image.name} loading="lazy" />
                   </div>
                   <div className="gallery-item-overlay">
                     <span className="gallery-item-name">{image.name || image.alt}</span>
