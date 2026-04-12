@@ -1,4 +1,5 @@
 import { X, ChevronLeft, ChevronRight, Download, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import type { GalleryImage } from '../types/gallery';
 import type { RatingType } from '../hooks/useImageRatings';
 
@@ -43,10 +44,26 @@ export function Lightbox({
     document.body.removeChild(link);
   };
 
+  const handleLike = () => {
+    // Fire confetti effect
+    const rect = document.querySelector('.lightbox-content')?.getBoundingClientRect();
+    if (rect) {
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { x, y },
+        colors: ['#22c55e', '#fbbf24', '#f472b6', '#60a5fa'],
+      });
+    }
+    onLike?.();
+  };
+
   return (
     <div className="lightbox-overlay" onClick={onClose}>
       <button
-        className="lightbox-close lightbox-nav"
+        className="lightbox-close"
         onClick={(e) => {
           e.stopPropagation();
           onClose();
@@ -72,51 +89,37 @@ export function Lightbox({
           src={image.src}
           alt={image.alt || image.name || 'Gallery image'}
         />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '1rem',
-            color: 'white',
-          }}
-        >
-          <div>
-            {image.name && <p style={{ margin: 0, fontWeight: 500 }}>{image.name}</p>}
-            {image.alt && (
-              <p style={{ margin: '0.25rem 0 0', opacity: 0.7, fontSize: '0.875rem' }}>
-                {image.alt}
-              </p>
-            )}
-            <p style={{ margin: '0.25rem 0 0', opacity: 0.5, fontSize: '0.75rem' }}>
-              {currentIndex + 1} / {images.length}
-            </p>
+        <div className="lightbox-bottom-bar">
+          <div className="lightbox-info">
+            {image.name && <p className="lightbox-title">{image.name}</p>}
+            {image.alt && <p className="lightbox-alt">{image.alt}</p>}
+            <p className="lightbox-counter">{currentIndex + 1} / {images.length}</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="lightbox-buttons">
             <button
-              className={`lightbox-nav ${rating === 'like' ? 'active' : ''}`}
+              className={`lightbox-btn ${rating === 'like' ? 'active like' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
-                onLike?.();
+                handleLike();
               }}
               title="Like"
-              style={rating === 'like' ? { color: '#22c55e' } : {}}
             >
               <ThumbsUp size={20} />
+              <span>Like</span>
             </button>
             <button
-              className={`lightbox-nav ${rating === 'dislike' ? 'active' : ''}`}
+              className={`lightbox-btn ${rating === 'dislike' ? 'active dislike' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onDislike?.();
               }}
               title="Dislike"
-              style={rating === 'dislike' ? { color: '#ef4444' } : {}}
             >
               <ThumbsDown size={20} />
+              <span>Dislike</span>
             </button>
             <button
-              className="lightbox-nav"
+              className="lightbox-btn"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDownload();
@@ -124,10 +127,11 @@ export function Lightbox({
               title="Download"
             >
               <Download size={20} />
+              <span>Download</span>
             </button>
             {image.src.startsWith('http') && (
               <button
-                className="lightbox-nav"
+                className="lightbox-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(image.src, '_blank');
@@ -135,6 +139,7 @@ export function Lightbox({
                 title="Open original"
               >
                 <ExternalLink size={20} />
+                <span>Open</span>
               </button>
             )}
           </div>

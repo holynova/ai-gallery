@@ -387,7 +387,7 @@ body {
 }
 
 /* Lightbox */
-.lightbox {
+.lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -425,40 +425,140 @@ body {
   color: var(--text-primary);
   cursor: pointer;
   transition: background 0.15s;
+  z-index: 10;
 }
 
 .lightbox-close:hover {
   background: var(--bg-hover);
 }
 
-.lightbox-image {
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.lightbox-nav:hover {
+  background: var(--bg-hover);
+}
+
+.lightbox-nav.prev {
+  left: 20px;
+}
+
+.lightbox-nav.next {
+  right: 20px;
+}
+
+.lightbox-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   max-width: 90vw;
-  max-height: 85vh;
+  max-height: 90vh;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: calc(90vh - 120px);
   object-fit: contain;
   border-radius: 8px;
 }
 
-.lightbox-info {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+.lightbox-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 16px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 16px 24px;
-  text-align: center;
+  gap: 16px;
 }
 
-.lightbox-info h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 4px;
+.lightbox-info {
+  flex: 1;
+  min-width: 0;
 }
 
-.lightbox-info p {
-  font-size: 13px;
+.lightbox-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lightbox-alt {
+  font-size: 12px;
   color: var(--text-secondary);
+  margin: 4px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lightbox-counter {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.lightbox-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lightbox-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lightbox-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-color);
+}
+
+.lightbox-btn.active.like {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.lightbox-btn.active.dislike {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+.lightbox-btn span {
+  font-weight: 500;
 }
 
 /* Scrollbar */
