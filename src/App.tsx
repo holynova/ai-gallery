@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, Grid, List, FolderOpen, Image as ImageIcon, Menu, ThumbsUp, ThumbsDown } from 'lucide-react';
 import type { GalleryImage, Folder, SortOption } from './types/gallery';
 import { useLightbox } from './hooks/useLightbox';
@@ -18,6 +18,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
+  const [shuffleSeed, setShuffleSeed] = useState(Math.random());
+  const sortSelectRef = useRef<HTMLSelectElement>(null);
 
   // Image ratings state and controls
   const {
@@ -62,6 +64,23 @@ function App() {
         setFolders([]);
         setLoading(false);
       });
+  }, []);
+
+  // Listen for native select change events (fallback for React onChange issues)
+  useEffect(() => {
+    const select = sortSelectRef.current;
+    if (!select) return;
+
+    const handleNativeChange = () => {
+      const value = select.value as SortOption;
+      setSortBy(value);
+      if (value === 'random') {
+        setShuffleSeed(Math.random());
+      }
+    };
+
+    select.addEventListener('change', handleNativeChange);
+    return () => select.removeEventListener('change', handleNativeChange);
   }, []);
 
   // Calculate folders from images
@@ -110,6 +129,23 @@ function App() {
       result = result.filter((img) => getRating(img.id) === null);
     }
 
+    // Fisher-Yates shuffle for random sort
+    function shuffleArray<T>(array: T[], seed: number): T[] {
+      const shuffled = [...array];
+      // Use seed for reproducible randomness within same seed
+      let random = seed;
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        random = (random * 9301 + 49297) % 233280;
+        const j = Math.floor((random / 233280) * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    if (sortBy === 'random') {
+      return shuffleArray(result, shuffleSeed);
+    }
+
     return [...result].sort((a, b) => {
       switch (sortBy) {
         case 'name-asc':
@@ -124,7 +160,7 @@ function App() {
           return 0;
       }
     });
-  }, [images, selectedFolder, sortBy, searchQuery, ratingFilter, getRating]);
+  }, [images, selectedFolder, sortBy, searchQuery, ratingFilter, getRating, shuffleSeed]);
 
   if (loading) {
     return (
@@ -217,13 +253,21 @@ function App() {
             <h3>Sort by</h3>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              onChange={(e) => {
+                const value = e.target.value as SortOption;
+                setSortBy(value);
+                if (value === 'random') {
+                  setShuffleSeed(Math.random());
+                }
+              }}
               className="sort-select"
+              ref={sortSelectRef}
             >
               <option value="date-desc">Newest First</option>
               <option value="date-asc">Oldest First</option>
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
+              <option value="random">Shuffle (Random)</option>
             </select>
           </div>
 

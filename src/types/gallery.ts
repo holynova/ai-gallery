@@ -18,8 +18,8 @@ export interface Folder {
   count?: number;
 }
 
-export type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'size-asc' | 'size-desc';
-export type SortLabel = 'Name (A-Z)' | 'Name (Z-A)' | 'Date (Oldest)' | 'Date (Newest)' | 'Size (Small)' | 'Size (Large)';
+export type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'size-asc' | 'size-desc' | 'random';
+export type SortLabel = 'Name (A-Z)' | 'Name (Z-A)' | 'Date (Oldest)' | 'Date (Newest)' | 'Size (Small)' | 'Size (Large)' | 'Random';
 
 export interface GalleryState {
   images: GalleryImage[];
