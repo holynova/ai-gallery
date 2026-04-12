@@ -50,7 +50,7 @@ function App() {
       .then((data) => {
         const loadedImages: GalleryImage[] = data.images.map((img: any) => ({
           ...img,
-          src: `${baseUrl}${img.src.replace(/^\//, '')}`,
+          src: img.src,
           createdAt: img.createdAt ? new Date(img.createdAt) : new Date(),
         }));
         setImages(loadedImages);
