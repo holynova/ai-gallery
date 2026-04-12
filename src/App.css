@@ -491,13 +491,11 @@ body {
 }
 
 .lightbox-thumb {
-  position: relative !important;
-  opacity: 1 !important;
-  filter: blur(0);
+  /* Uses absolute positioning from .lightbox-image-container img */
 }
 
 .lightbox-highres {
-  position: relative !important;
+  /* Uses absolute positioning from .lightbox-image-container img */
 }
 
 .lightbox-loader {
