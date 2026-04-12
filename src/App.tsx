@@ -315,7 +315,7 @@ function App() {
             <div className={`gallery-grid ${viewMode}`}>
               {filteredImages.map((image) => (
                 <div
-                  key={image.id}
+                  key={image.src}
                   className="gallery-item"
                   onClick={() => openLightbox(image, filteredImages)}
                 >

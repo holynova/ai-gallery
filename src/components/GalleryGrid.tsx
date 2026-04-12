@@ -23,7 +23,7 @@ export function GalleryGrid({ images, onImageClick, onImageDelete }: GalleryGrid
     <div className="gallery-grid">
       {images.map((image, index) => (
         <ImageCard
-          key={image.id}
+          key={image.src}
           image={image}
           onClick={() => onImageClick(image, index)}
           onDelete={onImageDelete}
