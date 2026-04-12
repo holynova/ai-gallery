@@ -38,6 +38,9 @@ jobs:
       - name: Generate config.json
         run: node scripts/generate-config.js
 
+      - name: Generate thumbnails
+        run: node scripts/generate-thumbnails.mjs
+
       - name: Build
         run: pnpm run build
         env:

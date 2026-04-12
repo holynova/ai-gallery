@@ -1,4 +1,5 @@
-import { X, ChevronLeft, ChevronRight, Download, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, ChevronLeft, ChevronRight, Download, ExternalLink, ThumbsUp, ThumbsDown, Loader } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { GalleryImage } from '../types/gallery';
 import type { RatingType } from '../hooks/useImageRatings';
@@ -32,6 +33,24 @@ export function Lightbox({
   onLike,
   onDislike,
 }: LightboxProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [highResLoaded, setHighResLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Reset loading state when image changes
+  useEffect(() => {
+    if (image) {
+      setIsLoading(true);
+      setHighResLoaded(false);
+    }
+  }, [image?.id]);
+
+  // Handle image load
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setHighResLoaded(true);
+  };
+
   if (!isOpen || !image) return null;
 
   const handleDownload = () => {
@@ -60,6 +79,9 @@ export function Lightbox({
     onLike?.();
   };
 
+  // Determine which image to show - thumbnail first, then high-res
+  // Note: displaySrc is used for reference but we render both images with opacity
+
   return (
     <div className="lightbox-overlay" onClick={onClose}>
       <button
@@ -85,10 +107,30 @@ export function Lightbox({
       )}
 
       <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-        <img
-          src={image.src}
-          alt={image.alt || image.name || 'Gallery image'}
-        />
+        <div className="lightbox-image-container">
+          {isLoading && (
+            <div className="lightbox-loader">
+              <Loader size={32} className="spinner" />
+              <span>Loading high resolution...</span>
+            </div>
+          )}
+          {/* Thumbnail (quick load) */}
+          <img
+            src={image.thumbnail || image.src}
+            alt=""
+            className="lightbox-thumb"
+            style={{ opacity: highResLoaded ? 0 : 1 }}
+          />
+          {/* High-res image (lazy load) */}
+          <img
+            ref={imgRef}
+            src={image.src}
+            alt={image.alt || image.name || 'Gallery image'}
+            className="lightbox-highres"
+            style={{ opacity: highResLoaded ? 1 : 0 }}
+            onLoad={handleImageLoad}
+          />
+        </div>
         <div className="lightbox-bottom-bar">
           <div className="lightbox-info">
             {image.name && <p className="lightbox-title">{image.name}</p>}

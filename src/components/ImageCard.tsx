@@ -53,7 +53,7 @@ export function ImageCard({ image, onClick, onDelete }: ImageCardProps) {
         <>
           {!isLoaded && <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />}
           <img
-            src={image.src}
+            src={image.thumbnail || image.src}
             alt={image.alt || image.name || 'Gallery image'}
             onLoad={() => setIsLoaded(true)}
             style={{ opacity: isLoaded ? 1 : 0 }}
