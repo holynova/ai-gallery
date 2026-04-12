@@ -15,8 +15,8 @@ const images = files
     return { 
       id, 
       name: filename, 
-      src: `/images/${filename}`, 
-      thumbnail: `/images/${thumbFilename}`,
+      src: `/ai-gallery/images/${filename}`, 
+      thumbnail: `/ai-gallery/images/${thumbFilename}`,
       folder: 'default' 
     };
   });
