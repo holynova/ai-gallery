@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "prepare:static": "node scripts/generate-config.js && node scripts/generate-thumbnails.mjs",
+    "build": "pnpm run prepare:static && tsc -b && vite build --mode cloudflare",
+    "build:pages": "pnpm run prepare:static && tsc -b && vite build --mode pages",
     "lint": "eslint .",
     "preview": "vite preview"
   },

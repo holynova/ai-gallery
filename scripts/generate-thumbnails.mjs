@@ -9,8 +9,9 @@ const THUMB_WIDTH = 400;
 const THUMB_QUALITY = 80;
 
 async function generateThumbnails() {
-  const files = fs.readdirSync(IMAGES_DIR).filter(f => 
-    f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png')
+  const files = fs.readdirSync(IMAGES_DIR).filter(f =>
+    !f.includes('_thumb') &&
+    (f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png'))
   );
 
   console.log(`Found ${files.length} images to process`);

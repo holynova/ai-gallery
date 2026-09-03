@@ -4,12 +4,12 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/ai-gallery/',
+export default defineConfig(({ mode }) => ({
+  base: mode === 'pages' ? '/ai-gallery/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+}))
