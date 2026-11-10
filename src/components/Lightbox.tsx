@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Download, ExternalLink, ThumbsUp, ThumbsDown, Loader } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { GalleryImage } from '../types/gallery';
@@ -36,14 +36,6 @@ export function Lightbox({
   const [isLoading, setIsLoading] = useState(true);
   const [highResLoaded, setHighResLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-
-  // Reset loading state when image changes
-  useEffect(() => {
-    if (image) {
-      setIsLoading(true);
-      setHighResLoaded(false);
-    }
-  }, [image?.id]);
 
   // Handle image load
   const handleImageLoad = () => {

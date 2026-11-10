@@ -6,7 +6,27 @@ import { useImageRatings } from './hooks/useImageRatings';
 import { Lightbox } from './components/Lightbox';
 import './App.css';
 
+declare const __APP_VERSION__: string;
+
 export type RatingFilter = 'all' | 'liked' | 'disliked' | 'neutral';
+
+function calculateFolders(imgs: GalleryImage[]): Folder[] {
+  const folderMap = new Map<string, Folder>();
+  imgs.forEach((img) => {
+    const folderId = img.folder || 'uncategorized';
+    const existing = folderMap.get(folderId);
+    if (existing) {
+      existing.count = (existing.count || 0) + 1;
+    } else {
+      folderMap.set(folderId, {
+        id: folderId,
+        name: folderId === 'uncategorized' ? 'Uncategorized' : folderId,
+        count: 1,
+      });
+    }
+  });
+  return Array.from(folderMap.values());
+}
 
 function App() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -18,7 +38,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
-  const [shuffleSeed, setShuffleSeed] = useState(Math.random());
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.random());
   const sortSelectRef = useRef<HTMLSelectElement>(null);
 
   // Image ratings state and controls
@@ -50,7 +70,7 @@ function App() {
     fetch(`${baseUrl}images/config.json`)
       .then((res) => res.json())
       .then((data) => {
-        const loadedImages: GalleryImage[] = data.images.map((img: any) => ({
+        const loadedImages: GalleryImage[] = data.images.map((img: Omit<GalleryImage, 'createdAt'> & { createdAt?: string }) => ({
           ...img,
           src: img.src,
           createdAt: img.createdAt ? new Date(img.createdAt) : new Date(),
@@ -82,25 +102,6 @@ function App() {
     select.addEventListener('change', handleNativeChange);
     return () => select.removeEventListener('change', handleNativeChange);
   }, []);
-
-  // Calculate folders from images
-  function calculateFolders(imgs: GalleryImage[]): Folder[] {
-    const folderMap = new Map<string, Folder>();
-    imgs.forEach((img) => {
-      const folderId = img.folder || 'uncategorized';
-      const existing = folderMap.get(folderId);
-      if (existing) {
-        existing.count = (existing.count || 0) + 1;
-      } else {
-        folderMap.set(folderId, {
-          id: folderId,
-          name: folderId === 'uncategorized' ? 'Uncategorized' : folderId,
-          count: 1,
-        });
-      }
-    });
-    return Array.from(folderMap.values());
-  }
 
 // Filter and sort images
   const filteredImages = useMemo(() => {
@@ -198,6 +199,8 @@ function App() {
           </div>
         </div>
         <div className="header-right">
+          <a className="repo-link" href="https://github.com/holynova/ai-gallery" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <span className="app-version">{__APP_VERSION__}</span>
           <button
             className="sidebar-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -334,6 +337,7 @@ function App() {
 
       {/* Lightbox */}
       <Lightbox
+        key={currentImage?.id ?? 'closed'}
         isOpen={isOpen}
         image={currentImage}
         images={lightboxImages}

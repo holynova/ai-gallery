@@ -63,6 +63,23 @@ body {
   color: #06b6d4;
 }
 
+.repo-link {
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.repo-link:hover,
+.repo-link:focus-visible {
+  color: var(--text-primary);
+}
+
+.app-version {
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .header-center {
   flex: 1;
   max-width: 480px;

@@ -53,13 +53,13 @@ export function useImageRatings() {
 
   const getLikedImages = useCallback((): string[] => {
     return Object.entries(ratings)
-      .filter(([_, value]) => value === 'like')
+      .filter(([, value]) => value === 'like')
       .map(([key]) => key);
   }, [ratings]);
 
   const getDislikedImages = useCallback((): string[] => {
     return Object.entries(ratings)
-      .filter(([_, value]) => value === 'dislike')
+      .filter(([, value]) => value === 'dislike')
       .map(([key]) => key);
   }, [ratings]);
 

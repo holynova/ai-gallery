@@ -9,15 +9,16 @@ const THUMB_WIDTH = 400;
 const THUMB_QUALITY = 80;
 
 async function generateThumbnails() {
-  const files = fs.readdirSync(IMAGES_DIR).filter(f => 
-    f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png')
+  const files = fs.readdirSync(IMAGES_DIR).filter(f =>
+    /\.(jpe?g|png)$/i.test(f) && !f.includes('_thumb')
   );
 
   console.log(`Found ${files.length} images to process`);
 
   for (const file of files) {
     const inputPath = path.join(IMAGES_DIR, file);
-    const outputPath = path.join(IMAGES_DIR, file.replace(/(\.[^.]+)$/, '_thumb$1'));
+    const outputPath = path.join(IMAGES_DIR, `${path.parse(file).name}_thumb.jpg`);
+    if (fs.existsSync(outputPath) && fs.statSync(outputPath).mtimeMs >= fs.statSync(inputPath).mtimeMs) continue;
 
     try {
       await sharp(inputPath)
@@ -30,6 +31,7 @@ async function generateThumbnails() {
       console.log(`✓ ${file} (${(originalSize/1024).toFixed(0)}KB → ${(thumbSize/1024).toFixed(0)}KB)`);
     } catch (err) {
       console.error(`✗ Failed to process ${file}:`, err.message);
+      process.exitCode = 1;
     }
   }
 
