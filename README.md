@@ -45,6 +45,6 @@ pnpm run deploy:check
 pnpm run deploy
 ```
 
-The `main` branch is the single source of truth. Cloudflare Worker `ai-gallery` is deployed manually with the pinned Wrangler version. The existing GitHub Pages workflow uses `pnpm run build:pages` as a fallback; Cloudflare uses the root path.
+The `main` branch is the single source of truth. Cloudflare Worker `ai-gallery` is deployed manually with the pinned Wrangler version. The old GitHub Pages site is retained as a historical fallback; its workflow is manual-only because the full original-image collection exceeds Pages' 1 GB site limit.
 
-唯一源码分支为 `main`，使用锁定版本的 Wrangler 手动部署现有 Worker `ai-gallery`。保留既有 GitHub Pages 工作流作回退，不创建新的发布分支或 Cloudflare 自动部署。
+唯一源码分支为 `main`，使用锁定版本的 Wrangler 手动部署现有 Worker `ai-gallery`。完整原图库超过 Pages 的 1 GB 站点限制，旧 Pages 站点保留历史版本，工作流改为仅手动触发；不创建新的发布分支或 Cloudflare 自动部署。
